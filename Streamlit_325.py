@@ -51,7 +51,30 @@ if rad== "Visualizations":
     ax4=px.bar(df,Top_countries,Top_scores,labels={"x":"Country","y":"Happiness Score"})
     st.plotly_chart(ax4)
     st.header("Mapping the factors on the world map:")
-    
+    from geopy.geocoders import Nominatim
+    Long=[]
+    Lat=[]
+    def Geocode(country):
+            try:
+                geolocator=Nominatim(user_agent="your_app_name")
+                return geolocator.geocode(country)
+            except:
+                return Geocode(country)
+        
+    for i in(df["Country"]):
+        if Geocode(i) != None:
+            loc=Geocode(i)
+            Long.append(loc.longitude)
+            Lat.append(loc.latitude)
+        else:
+            Lat.append(np.nan)
+            Long.append(np.nan)
+    df['Longitude']=Long
+    df['Latitude']=Lat
+    #Making sure the function is working correctly
+    st.write(df.info())
+    ax9=plt.express.scatter_geo(data_frame=df,lon=df["Longitude"],lat=df["Latitude"],size=df["Rank"],color=df["Score"])
+    st.plotly_chart(ax9)
     st.markdown("This map displays the economic and social factors on the world map")
     st.header("Healthy Life expectancy per countries")
     ax5=px.histogram(df,x="Healthy_life_expectancy",hover_name="Country",color="Country",labels={"Healthy_life_expectancy":"Healthy Life Expectancy Score","count":"Score"})
